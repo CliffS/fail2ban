@@ -46,6 +46,10 @@ class Pickle
         return reject new Error "Response code of #{code}" if code
         console.log 'Exit:', Buffer.concat(response).toString()
         resolve JSON.parse Buffer.concat(response).toString()
+      python.on 'error', (err) =>
+        console.log "Error", err
+        reject err
+        python.stdin.end()
       console.log 'typeof pickle', typeof pickle, pickle
       python.stdin.write pickle
       python.stdin.end()
