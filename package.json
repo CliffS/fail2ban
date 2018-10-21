@@ -1,0 +1,29 @@
+{
+  "name": "fail2ban",
+  "version": "0.1.0",
+  "description": "Javascript interface to the fail2ban server",
+  "main": "lib/fail2ban.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CliffS/fail2ban.git"
+  },
+  "keywords": [
+    "fail2ban-client",
+    "fail2ban-server"
+  ],
+  "author": "Cliff Stanford <cliff@may.be>",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/CliffS/fail2ban/issues"
+  },
+  "homepage": "https://github.com/CliffS/fail2ban#readme",
+  "devDependencies": {
+    "coffeescript": "^2.3.2"
+  },
+  "dependencies": {
+    "pickle": "^0.2.0"
+  }
+}
