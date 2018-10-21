@@ -10,7 +10,6 @@ class Pickle
 
 
   dump: (obj) ->
-    console.log 'Dump:', obj
     new Promise (resolve, reject) =>
       python = spawn '/usr/bin/env', [
         'python3'
@@ -19,14 +18,11 @@ class Pickle
       ]
       response = []
       python.stdout.on 'data', (data) =>
-        console.log "Dump Data:", data
         response.push data
       python.on 'exit', (code, signal) =>
-        console.log "Code = #{code}", response
         return reject new Error "Response code of #{code}" if code
         resolve Buffer.concat response
       python.on 'error', (err) =>
-        console.log "Error", err
         reject err
         python.stdin.end()
       python.stdin.write JSON.stringify obj
@@ -44,13 +40,10 @@ class Pickle
         response.push data
       python.on 'exit', (code) =>
         return reject new Error "Response code of #{code}" if code
-        console.log 'Exit:', Buffer.concat(response).toString()
         resolve JSON.parse Buffer.concat(response).toString()
       python.on 'error', (err) =>
-        console.log "Error", err
         reject err
         python.stdin.end()
-      console.log 'typeof pickle', typeof pickle, pickle
       python.stdin.write pickle
       python.stdin.end()
 

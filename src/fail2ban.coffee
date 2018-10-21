@@ -22,24 +22,18 @@ class Fail2Ban
     new Promise (resolve, reject) =>
       @pickle.dump [ msg ]
       .then (encoded) =>
-        console.log 'Encoded:', Buffer.from(encoded).toString 'hex'
         conn = net.connect @socket, =>
           conn.write encoded
           conn.write END
         .on 'error', (err) =>
           reject err
         .on 'data', (data) =>
-          console.log 'isBuffer:', Buffer.isBuffer data
-          console.log 'Data:', data.toString 'binary'
           response = Buffer.from data
-          console.log "Response:", response.toString(), response.length
           if response.toString('binary').endsWith END
             response = response.slice 0, response.length - END.length
-            console.log "Response:", response.toString(), response.length
           conn.end()
           @pickle.load response
           .then (result) =>
-            console.log "Result:", typeof result, result
             resolve result
           .catch (err) =>
             reject err
@@ -47,7 +41,6 @@ class Fail2Ban
         reject err
 
   status: ->
-    console.log 'Got to status'
     await @message 'status'
 
 
