@@ -21,7 +21,8 @@ def main(argv):
         else:
             sys.exit(2)
     except Exception as error:
-        # sys.stderr.write("Exception in " + argv[0] + "\n")
+        sys.stderr.write("Exception in " + argv[0] + "\n")
+        sys.stderr.write(str(error))
         print(temp)
         sys.exit(3)
 
