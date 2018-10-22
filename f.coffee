@@ -33,5 +33,4 @@ do ->
   console.log 'RETRY   ', await jail.retries
   jail.useDNS = 'no'
   console.log 'DNS     ', await jail.useDNS
-  console.log await jail.start()
   console.log 'STATUS', JSON.stringify (await f.status), null, 2
