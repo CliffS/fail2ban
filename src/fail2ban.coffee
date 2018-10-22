@@ -41,7 +41,7 @@ class Fail2Ban
         reject err
 
   status: (jail) ->
-    if jail
+    if jail?
       @message 'status', jail
       .then (response) =>
         # return response
@@ -53,13 +53,13 @@ class Fail2Ban
           actions:
             currentlyBanned: response[1][1][1][0][1]
             totalBanned:     response[1][1][1][1][1]
-            bannedIPList:    response[1][1][1][1][1]
+            bannedIPList:    response[1][1][1][2][1]
     else
       @message 'status'
       .then (response) =>
         status =
           jails: response[1][0][1]
-          list: response[1][1].slice 1
+          list: response[1][1][1].split /,\s*/
 
   reload: ->
     @message 'reload'
