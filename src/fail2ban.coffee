@@ -44,7 +44,16 @@ class Fail2Ban
     if jail
       @message 'status', jail
       .then (response) =>
-        response
+        # return response
+        status =
+          filter:
+            currentlyFailed: response[1][0][1][0][1]
+            totalFailed:     response[1][0][1][1][1]
+            fileList:        response[1][0][1][2][1]
+          actions:
+            currentlyBanned: response[1][1][1][0][1]
+            totalBanned:     response[1][1][1][1][1]
+            bannedIPList:    response[1][1][1][1][1]
     else
       @message 'status'
       .then (response) =>
