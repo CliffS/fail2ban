@@ -73,6 +73,7 @@ class Fail2Ban extends Property
         SELECT jail, ip, timeofban, data
           FROM bans
         WHERE jail LIKE ?
+        ORDER BY timeofban ASC
       '''
       bans = statement.all jail
       for ban in bans
