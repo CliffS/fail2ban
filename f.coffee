@@ -6,13 +6,13 @@
 f = new Fail2Ban
 
 do ->
-  console.log await f.bans
-  jail = new Jail 'sshd'
+  # console.log await f.bans
+  jail = new Jail "sshd"
   # console.log await jail.bans
-  console.log 'PING  ', JSON.stringify (await f.ping), null, 2
-  console.log 'STATUS', JSON.stringify (await f.status), null, 2
-  console.log 'DBFILE', await f.dbfile
-  console.log 'REGEX', await jail.regex
+  #console.log 'PING  ', await f.ping()
+  #console.log 'STATUS', JSON.stringify (await f.status), null, 2
+  #console.log 'DBFILE', await f.dbfile
+  #console.log 'REGEX', await jail.regex
   try
     console.log 'ADD-REGEX', JSON.stringify (await jail.addRegex 'Test Regex'), null, 2
   catch err

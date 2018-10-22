@@ -16,6 +16,7 @@ def main(argv):
             result = json.dumps(temp)
             print(result)
         elif argv[0] == 'dump':
+            temp = "dummy"
             pickle.dump(json.load(sys.stdin), sys.stdout.buffer, 1)
         else:
             sys.exit(2)
