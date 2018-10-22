@@ -3,13 +3,16 @@ net = require 'net'
 
 ini     = require 'ini'
 Pickle  = require './pickle'
+Property = require './Property'
+SQLite   = require 'better-sqlite3'
 
 END = "<F2B_END_COMMAND>"
 
 
-class Fail2Ban
+class Fail2Ban extends Property
 
   constructor: (config = '/etc/fail2ban/fail2ban.conf') ->
+    super()
     stats = fs.statSync config
     if stats.isSocket()
       @socket = config
@@ -40,39 +43,41 @@ class Fail2Ban
       .catch (err) =>
         reject err
 
-  status: (jail) ->
-    if jail?
-      @message 'status', jail
-      .then (response) =>
-        # return response
-        status =
-          filter:
-            currentlyFailed: response[1][0][1][0][1]
-            totalFailed:     response[1][0][1][1][1]
-            fileList:        response[1][0][1][2][1]
-          actions:
-            currentlyBanned: response[1][1][1][0][1]
-            totalBanned:     response[1][1][1][1][1]
-            bannedIPList:    response[1][1][1][2][1]
-    else
-      @message 'status'
-      .then (response) =>
-        status =
-          jails: response[1][0][1]
-          list: response[1][1][1].split /,\s*/
-
-  reload: ->
-    @message 'reload'
+  @property 'status',
+    get: ->
+      response = await @message 'status'
+      status =
+        jails: response[1][0][1]
+        list: response[1][1][1].split /,\s*/
 
   ping: ->
     @message 'ping'
     .then (response) =>
       response[1]
 
-  dbFile: ->
-    @message 'get', 'dbfile'
-    .then (response) =>
+  @property 'dbfile',
+    get: ->
+      response = await @message 'get', 'dbfile'
       response[1]
+    set: (file) ->
+      @message 'set', 'dbfile', file
+
+  @property 'bans',
+    get: ->
+      file = await @dbfile
+      db = new SQLite file,
+        fileMustExist: true
+        readonly: true
+      jail = @jail ? '%'
+      statement = db.prepare '''
+        SELECT jail, ip, timeofban, data
+          FROM bans
+        WHERE jail LIKE ?
+      '''
+      bans = statement.all jail
+      for ban in bans
+        ban.data = JSON.parse ban.data.toString()
+      bans
 
 
 module.exports = Fail2Ban

@@ -45,7 +45,7 @@ class Pickle
             resolve JSON.parse Buffer.concat(response).toString()
           else
             err = Buffer.concat(response).toString()
-            match = err.match /TypeError\("(.*)"/
+            match = err.match /[A-Z][a-z]+Error\(["'](.*)["']/
             if match then err = match[1]
             reject new Error err
       python.on 'error', (err) =>
