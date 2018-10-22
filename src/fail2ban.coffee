@@ -18,9 +18,9 @@ class Fail2Ban
       @socket = conf.Definition.socket
     @pickle = new Pickle
 
-  message: (msg) ->
+  message: (msg...) ->
     new Promise (resolve, reject) =>
-      @pickle.dump [ msg ]
+      @pickle.dump msg
       .then (encoded) =>
         conn = net.connect @socket, =>
           conn.write encoded
@@ -40,9 +40,30 @@ class Fail2Ban
       .catch (err) =>
         reject err
 
-  status: ->
-    await @message 'status'
+  status: (jail) ->
+    if jail
+      @message 'status', jail
+      .then (response) =>
+        response
+    else
+      @message 'status'
+      .then (response) =>
+        status =
+          jails: response[1][0][1]
+          list: response[1][1].slice 1
 
+  reload: ->
+    @message 'reload'
+
+  ping: ->
+    @message 'ping'
+    .then (response) =>
+      response[1]
+
+  dbFile: ->
+    @message 'get', 'dbfile'
+    .then (response) =>
+      response[1]
 
 
 module.exports = Fail2Ban

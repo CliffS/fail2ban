@@ -11,14 +11,18 @@ except ImportError:
 def main(argv):
     try:
         if argv[0] == 'load':
-            json.dump(pickle.load(sys.stdin.buffer), sys.stdout)
+            temp = pickle.load(sys.stdin.buffer)
+            # sys.stderr.write(">>" + str(temp) + "\n")
+            result = json.dumps(temp)
+            print(result)
         elif argv[0] == 'dump':
             pickle.dump(json.load(sys.stdin), sys.stdout.buffer, 1)
         else:
             sys.exit(2)
-    except RuntimeError as error:
-        sys.stdout.write(error)
-        sys.exit(1)
+    except Exception as error:
+        # sys.stderr.write("Exception in " + argv[0] + "\n")
+        print(temp)
+        sys.exit(3)
 
 if __name__ == '__main__':
     main(sys.argv[1:])

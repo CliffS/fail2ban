@@ -1,6 +1,7 @@
 spawn = require('child_process').spawn
 Path = require 'path'
 fs = require 'fs'
+Fail2Error = require './Fail2Error'
 
 class Pickle
 
@@ -15,7 +16,7 @@ class Pickle
         'python3'
         @script
         'dump'
-      ]
+      ], stdio : ['pipe', 'pipe', 'inherit']
       response = []
       python.stdout.on 'data', (data) =>
         response.push data
@@ -34,13 +35,19 @@ class Pickle
         'python3'
         @script
         'load'
-      ]
+      ], stdio : ['pipe', 'pipe', 'inherit']
       response = []
       python.stdout.on 'data', (data) =>
         response.push data
       python.on 'exit', (code) =>
-        return reject new Error "Response code of #{code}" if code
-        resolve JSON.parse Buffer.concat(response).toString()
+        switch code
+          when 0
+            resolve JSON.parse Buffer.concat(response).toString()
+          else
+            err = Buffer.concat(response).toString()
+            match = err.match /TypeError\("(.*)"/
+            if match then err = match[1]
+            reject new Error err
       python.on 'error', (err) =>
         reject err
         python.stdin.end()
