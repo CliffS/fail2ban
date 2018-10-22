@@ -76,7 +76,12 @@ class Fail2Ban extends Property
       '''
       bans = statement.all jail
       for ban in bans
-        ban.data = JSON.parse ban.data.toString()
+        data = JSON.parse ban.data.toString()
+        ban.time = new Date ban.timeofban * 1000
+        ban.matches = data.matches
+        ban.failures = data.failures
+        delete ban.data
+        delete ban.timeofban
       bans
 
 
