@@ -6,7 +6,7 @@ This module is designed to give access to the [fail2ban][fail2ban]
 interface used by `fail2ban-client`.  The module talks directly
 to the socket that interacts with the server.
 
-It is written in [coffeescript][Coffeescript 2] using native
+It is written in [Coffeescript 2][coffeescript] using native
 Promises.  You do not need Coffeescript to use the library; it is pre-compiled to Javascript ES6.
 
 Where possible, I have use properties like `fail.dbfile` rather than
@@ -237,4 +237,4 @@ submit a pull request.
 
 ## Issues
 
-Please report any bugs or make any suggestions at the [issues][Github issues page].
+Please report any bugs or make any suggestions at the [Github issues page][issues].
