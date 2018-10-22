@@ -5,7 +5,9 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "coffee --watch --compile --output lib src &"
+    "watch": "coffee --watch --compile --output lib src &",
+    "build": "coffee --compile --output lib src",
+    "prepublishOnly": "npm run-script build"
   },
   "repository": {
     "type": "git",
