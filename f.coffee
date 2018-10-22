@@ -6,10 +6,9 @@
 f = new Fail2Ban
 
 do ->
-  # console.log await f.bans
+  console.log await f.bans
   jail = new Jail 'sshd'
-  console.log await jail.bans
-  process.exit()
+  # console.log await jail.bans
   console.log 'PING  ', JSON.stringify (await f.ping), null, 2
   console.log 'STATUS', JSON.stringify (await f.status), null, 2
   console.log 'DBFILE', await f.dbfile
@@ -27,7 +26,7 @@ do ->
     console.log 'BAN  ', JSON.stringify response, null, 2
   .catch (err) ->
     console.log err
-  # console.log 'JAIL STATUS', JSON.stringify (await jail.status), null, 2
+  console.log 'JAIL STATUS', JSON.stringify (await jail.status), null, 2
   jail.findTime = 600
   console.log 'FINDTIME', await jail.findTime
   jail.retries = 3

@@ -2,8 +2,8 @@ Fail2Ban = require './fail2ban'
 
 class Jail extends Fail2Ban
 
-  constructor: (@jail) ->
-    super()
+  constructor: (@jail, config) ->
+    super config
 
   @property 'status',
     get: ->
