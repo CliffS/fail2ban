@@ -25,6 +25,9 @@ by using a `.catch()` block if using `.then()`.
 
 ## Install
 
+You will need python3 in your path.  It is currently used to
+*pickle* and *unpickle* the messages to and from the server.
+
 ```bash
 npm install fail2ban
 ```
@@ -94,7 +97,7 @@ the returned array looks like this:
 {
   "jail": "sshd",
   "ip": "219.129.237.218",
-  "time": 2017-04-23T09:55:11.000Z,
+  "time": "2017-04-23T09:55:11.000Z",
   "matches": 
      [ "Apr 23 11:45:15 vps sshd[26485]: Invalid user misyogixd from 219.129.237.218",
        "Apr 23 11:47:43 vps sshd[26497]: Invalid user couchdb from 219.129.237.218",
@@ -116,7 +119,7 @@ await fail.ping();
 Checks the server is alive.  It returns "pong".
 
 ```javascript
-var response = await message(<array of strings>);
+var response = await fail.message(<array of strings>);
 ```
 
 This is the low level function that simply passes the message onto
@@ -149,7 +152,6 @@ This shows the status for the single jail.  Example below:
 
 ```json
 {
-  {
   "filter": {
     "currentlyFailed": 27,
     "totalFailed": 81,
@@ -234,6 +236,9 @@ clients.
 
 If you have any time to add more functions to this module, feel free to
 submit a pull request.
+
+In particular, if you understand how the Python pickle/unpicke works,
+it would be great not to have to rely on a python3 binary.
 
 ## Issues
 
