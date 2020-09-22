@@ -7,16 +7,19 @@ class Jail extends Fail2Ban
 
   @property 'status',
     get: ->
-      response = await @message 'status', @jail
-      status =
-        filter:
-          currentlyFailed: response[1][0][1][0][1]
-          totalFailed:     response[1][0][1][1][1]
-          fileList:        response[1][0][1][2][1]
-        actions:
-          currentlyBanned: response[1][1][1][0][1]
-          totalBanned:     response[1][1][1][1][1]
-          bannedIPList:    response[1][1][1][2][1]
+      try
+        response = await @message 'status', @jail
+        status =
+          filter:
+            currentlyFailed: response[1][0][1][0][1]
+            totalFailed:     response[1][0][1][1][1]
+            fileList:        response[1][0][1][2][1]
+          actions:
+            currentlyBanned: response[1][1][1][0][1]
+            totalBanned:     response[1][1][1][1][1]
+            bannedIPList:    response[1][1][1][2][1]
+      catch e
+        status = null
 
   @property 'regex',
     get: ->
@@ -43,6 +46,18 @@ class Jail extends Fail2Ban
     @message 'set', @jail, 'banip', ip
     .then (response) =>
       response[1]       # returns IP banned
+
+  add: (backend = 'systemd') ->
+    return @message 'add', @jail, backend
+
+  stop: () ->
+    return @message 'stop', @jail
+
+  start: () ->
+    return @message 'start', @jail
+
+  actionban: (ACT,cmd) ->
+    return @message 'set', @jail, 'action', ACT, 'actionban', cmd
 
   unban: (ip) ->
     @message 'set', @jail, 'unbanip', ip

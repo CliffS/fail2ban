@@ -56,4 +56,3 @@ class Pickle
 
 
 module.exports = Pickle
-
