@@ -1,7 +1,7 @@
 fs  = require 'fs'
 net = require 'net'
 
-Pickle  = require './pickle'
+unpickle  = require 'unpickle';
 Property = require './Property'
 
 END = "<F2B_END_COMMAND>"
@@ -16,47 +16,43 @@ class Fail2Ban extends Property
       @socket = socketFile
     else
       throw (socketFile+" is not valid socket")
-    @pickle = new Pickle
 
   message: (msg...) ->
     new Promise (resolve, reject) =>
-      @pickle.dump msg
-      .then (encoded) =>
-        conn = net.connect @socket, =>
-          conn.write encoded
-          conn.write END
-        .on 'error', (err) =>
-          reject err
-        .on 'data', (data) =>
-          response = Buffer.from data
-          if response.toString('binary').endsWith END
-            response = response.slice 0, response.length - END.length
-          conn.end()
-          @pickle.load response
-          .then (result) =>
-            resolve result
-          .catch (err) =>
-            reject err
-      .catch (err) =>
+      encoded = unpickle.dump msg
+      conn = net.connect @socket, =>
+        conn.write encoded
+        conn.write END
+      .on 'error', (err) =>
         reject err
+      .on 'data', (data) =>
+        response = Buffer.from data
+        if response.toString('binary').endsWith END
+          response = response.slice 0, response.length - END.length
+        conn.end()
+        result = unpickle.parse response
+        resolve result[1]
 
   @property 'status',
     get: ->
       response = await @message 'status'
       status =
-        jails: response[1][0][1]
-        list: response[1][1][1].split /,\s*/
+        jails: response[0][1]
+        list: response[1][1].split /,\s*/
 
   ping: ->
-    @message 'ping'
-    .then (response) =>
-      response[1]
+    return @message 'ping'
+
+  reload: (jail) ->
+    if jail
+      return @message 'reload', jail
+    return @message 'reload'
 
   @property 'dbfile',
     get: ->
-      response = await @message 'get', 'dbfile'
-      response[1]
+      await @message 'get', 'dbfile'
+
     set: (file) ->
-      @message 'set', 'dbfile', file
+      await @message 'set', 'dbfile', file
 
 module.exports = Fail2Ban

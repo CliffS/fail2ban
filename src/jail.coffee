@@ -11,41 +11,35 @@ class Jail extends Fail2Ban
         response = await @message 'status', @jail
         status =
           filter:
-            currentlyFailed: response[1][0][1][0][1]
-            totalFailed:     response[1][0][1][1][1]
-            fileList:        response[1][0][1][2][1]
+            currentlyFailed: response[0][1][0][1]
+            totalFailed:     response[0][1][1][1]
+            fileList:        response[0][1][2][1]
           actions:
-            currentlyBanned: response[1][1][1][0][1]
-            totalBanned:     response[1][1][1][1][1]
-            bannedIPList:    response[1][1][1][2][1]
+            currentlyBanned: response[1][1][0][1]
+            totalBanned:     response[1][1][1][1]
+            bannedIPList:    response[1][1][2][1]
       catch e
         status = null
 
   @property 'regex',
     get: ->
-      response = await @message 'get', @jail, 'failregex'
-      response[1]
+      await @message 'get', @jail, 'failregex'
 
   addRegex: (regex) ->
-    @regex
-    .then (current) =>
-      throw new Error "Regex already exists" if regex in current
-      @message 'set', @jail, 'addfailregex', regex
-    .then (response) =>
-      response[1]       # returns list of regexes
+    current = await @regex
+    throw new Error "Regex already exists" if regex in current
+    return @message 'set', @jail, 'addfailregex', regex
+    # returns list of regexes
 
   delRegex: (regex) ->
-    @regex
-    .then (current) =>
-      throw new Error "Regex does not exist" unless regex in current
-      @message 'set', @jail, 'delfailregex', current.indexOf regex
-    .then (response) =>
-      response[1]       # returns list of regexes
+    current = await @regex
+    throw new Error "Regex does not exist" unless regex in current
+    return @message 'set', @jail, 'delfailregex', current.indexOf regex
+    # returns list of regexes
 
   ban: (ip) ->
-    @message 'set', @jail, 'banip', ip
-    .then (response) =>
-      response[1]       # returns IP banned
+    return @message 'set', @jail, 'banip', ip
+    # returns IP banned
 
   add: (backend = 'systemd') ->
     return @message 'add', @jail, backend
@@ -56,35 +50,50 @@ class Jail extends Fail2Ban
   start: () ->
     return @message 'start', @jail
 
-  actionban: (ACT,cmd) ->
-    return @message 'set', @jail, 'action', ACT, 'actionban', cmd
+  #actionBan: (ACT,cmd) ->
+  #  return @message 'set', @jail, 'action', ACT, 'actionban', cmd
+
+  addIgnoreIp:(ip) ->
+    return @message 'set', @jail, 'addignoreip', ip
+
+  delIgnoreIp:(ip) ->
+    return @message 'set', @jail, 'delignoreip', ip
 
   unban: (ip) ->
-    @message 'set', @jail, 'unbanip', ip
-    .then (response) =>
-      response[1]       # returns IP unbanned
+    return @message 'set', @jail, 'unbanip', ip  # returns IP unbanned
+
+  addAction: (ACT) ->
+    return @message 'set', @jail, 'addaction', ACT
 
   @property 'findTime',
     get: ->
-      @message 'get', @jail, 'findtime'
-      .then (time) =>
-        time[1]
+      await @message 'get', @jail, 'findtime'
     set: (secs) ->
-      @message 'set', @jail, 'findtime', secs.toString()
+      await @message 'set', @jail, 'findtime', secs.toString()
+
+  @property 'banTime',
+    get: ->
+      await @message 'get', @jail, 'bantime'
+    set: (secs) ->
+      await @message 'set', @jail, 'bantime', secs.toString()
+
+  @property 'failRegex',
+    get: ->
+      await @message 'get', @jail, 'failregex'
+    set: (secs) ->
+      await @message 'set', @jail, 'failregex', secs.toString()
 
   @property 'retries',
     get: ->
-      @message 'get', @jail, 'maxretry'
-      .then (reties) =>
-        reties[1]
+      await @message 'get', @jail, 'maxretry'
+
     set: (reties) ->
-      @message 'set', @jail, 'maxretry', reties.toString()
+      await @message 'set', @jail, 'maxretry', reties.toString()
 
   @property 'useDNS',
     get: ->
-      @message 'get', @jail, 'usedns'
-      .then (dns) =>
-        dns[1]
+      await @message 'get', @jail, 'usedns'
+
     set: (mode) ->
       modes = [
         'yes'
@@ -94,6 +103,6 @@ class Jail extends Fail2Ban
       ]
       unless mode in modes
         throw new Error "Valid modes are: yes, warn, no and raw"
-      @message 'set', @jail, 'usedns', mode
+      await @message 'set', @jail, 'usedns', mode
 
 module.exports = Jail

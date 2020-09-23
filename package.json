@@ -23,8 +23,10 @@
     "url": "https://github.com/CliffS/fail2ban/issues"
   },
   "homepage": "https://github.com/CliffS/fail2ban#readme",
+  "dependencies": {
+    "unpickle": "git+https://github.com/drudrum/node-unpickle.git"
+  },
   "devDependencies": {
     "coffeescript": "^2.3.2"
-  },
-  "dependencies": {}
+  }
 }
