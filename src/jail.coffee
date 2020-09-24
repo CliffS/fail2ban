@@ -1,9 +1,13 @@
 Fail2Ban = require './fail2ban'
-
 class Jail extends Fail2Ban
 
   constructor: (@jail, config) ->
     super config
+    @cfg = config
+    return @
+
+  action: (ACT) ->
+    return new JailAction(@jail,ACT,@cfg)
 
   @property 'status',
     get: ->
@@ -50,9 +54,6 @@ class Jail extends Fail2Ban
   start: () ->
     return @message 'start', @jail
 
-  #actionBan: (ACT,cmd) ->
-  #  return @message 'set', @jail, 'action', ACT, 'actionban', cmd
-
   addIgnoreIp:(ip) ->
     return @message 'set', @jail, 'addignoreip', ip
 
@@ -64,6 +65,10 @@ class Jail extends Fail2Ban
 
   addAction: (ACT) ->
     return @message 'set', @jail, 'addaction', ACT
+
+  @property 'actions',
+    get: ->
+      await @message 'get', @jail, 'actions'
 
   @property 'findTime',
     get: ->
@@ -105,4 +110,57 @@ class Jail extends Fail2Ban
         throw new Error "Valid modes are: yes, warn, no and raw"
       await @message 'set', @jail, 'usedns', mode
 
+
+class JailAction extends Jail
+  constructor: (jail, @action, config) ->
+    super jail, config
+    @jail = jail
+    return @
+
+  @property 'actionStart',
+    get: ->
+      @message 'get', @jail, 'action', @action, 'actionstart'
+    set: (cmd) ->
+      await @message 'set', @jail, 'action', @action, 'actionstart', cmd
+
+  @property 'actionStop',
+    get: ->
+      @message 'get', @jail, 'action', @action, 'actionstop'
+    set: (cmd) ->
+      await @message 'set', @jail, 'action', @action, 'actionstop', cmd
+
+  @property 'actionCheck',
+    get: ->
+      @message 'get', @jail, 'action', @action, 'actioncheck'
+    set: (cmd) ->
+      await @message 'set', @jail, 'action', @action, 'actioncheck', cmd
+
+  @property 'actionBan',
+    get: ->
+      @message 'get', @jail, 'action', @action, 'actionban'
+    set: (cmd) ->
+      await @message 'set', @jail, 'action', @action, 'actionban', cmd
+
+  @property 'actionUnban',
+    get: ->
+      @message 'get', @jail, 'action', @action, 'actionunban'
+    set: (cmd) ->
+      await @message 'set', @jail, 'action', @action, 'actionunban', cmd
+
+  @property 'timeout',
+    get: ->
+      @message 'get', @jail, 'action', @action, 'timeout'
+    set: (cmd) ->
+      await @message 'set', @jail, 'action', @action, 'timeout', cmd
+
+  @property 'actionProperties',
+    get: ->
+      await @message 'get', @jail, 'actionproperties', @action
+
+  @property 'actionMethods',
+    get: ->
+      await @message 'get', @jail, 'actionmethods', @action
+
+  getProp: (propName) ->
+    return await @message 'get', @jail, 'action', @action, propName
 module.exports = Jail

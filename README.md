@@ -98,7 +98,7 @@ the returned array looks like this:
   "jail": "sshd",
   "ip": "219.129.237.218",
   "time": "2017-04-23T09:55:11.000Z",
-  "matches": 
+  "matches":
      [ "Apr 23 11:45:15 vps sshd[26485]: Invalid user misyogixd from 219.129.237.218",
        "Apr 23 11:47:43 vps sshd[26497]: Invalid user couchdb from 219.129.237.218",
        "Apr 23 11:50:13 vps sshd[26511]: Invalid user cozy from 219.129.237.218",
@@ -222,6 +222,18 @@ await jail.unban(<ip address>);
 ```
 
 This removes an IP address to the ban list for this jail.
+
+```javascript
+let jail=new Jail("sshd");
+console.log("actions:",
+  await jail.actions);
+console.log("actionBan iptables-multiport",
+  await jail.action('iptables-multiport').actionBan);
+console.log("props iptables-multiport",
+  await jail.action('iptables-multiport').actionProperties);
+```
+
+Get list of actions, get ban cmd of 'iptables-multiport'
 
 
 ## Bugs
