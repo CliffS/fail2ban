@@ -25,9 +25,6 @@ by using a `.catch()` block if using `.then()`.
 
 ## Install
 
-You will need python3 in your path.  It is currently used to
-*pickle* and *unpickle* the messages to and from the server.
-
 ```bash
 npm install fail2ban
 ```
@@ -53,14 +50,8 @@ jail = new Jail('sshd');
 
 ```javascript
   fail = new Fail2Ban();
-  fail = new Fail2Ban(path);
   fail = new Fail2Ban(socket);
 ```
-
-The Fail2Ban class needs to know where to find the configuration
-file or, at least, where to find the socket.  If no path is passed,
-it will look for `/etc/fail2ban/fail2ban.conf`.  If a path to a socket
-is passed, it will use that.
 
 ### Properties
 
@@ -78,36 +69,6 @@ Returns the number of jails and a list of them. For example:
     "smtp-proxy"
   ]
 }
-```
-
-```javascript
-await fail.dbfile
-fail.dbfile = "/var/lib/fail2ban/fail2ban.sqlite3"
-```
-Returns the database file name or sets it to a new value.
-
-```javascript
-await fail.bans
-```
-
-Returns a fill list of bans currently on the database.  Each entry in
-the returned array looks like this:
-
-```json
-{
-  "jail": "sshd",
-  "ip": "219.129.237.218",
-  "time": "2017-04-23T09:55:11.000Z",
-  "matches": 
-     [ "Apr 23 11:45:15 vps sshd[26485]: Invalid user misyogixd from 219.129.237.218",
-       "Apr 23 11:47:43 vps sshd[26497]: Invalid user couchdb from 219.129.237.218",
-       "Apr 23 11:50:13 vps sshd[26511]: Invalid user cozy from 219.129.237.218",
-       "Apr 23 11:52:41 vps sshd[26534]: Invalid user wow from 219.129.237.218",
-       "Apr 23 11:55:11 vps sshd[26550]: Invalid user arkserver from 219.129.237.218"
-     ],
-  "failures": 5
-}
-
 ```
 
 ### Functions
@@ -223,6 +184,18 @@ await jail.unban(<ip address>);
 
 This removes an IP address to the ban list for this jail.
 
+```javascript
+let jail=new Jail("sshd");
+console.log("actions:",
+  await jail.actions);
+console.log("actionBan iptables-multiport",
+  await jail.action('iptables-multiport').actionBan);
+console.log("props iptables-multiport",
+  await jail.action('iptables-multiport').actionProperties);
+```
+
+Get list of actions, get ban cmd of 'iptables-multiport'
+
 
 ## Bugs
 
@@ -236,9 +209,6 @@ clients.
 
 If you have any time to add more functions to this module, feel free to
 submit a pull request.
-
-In particular, if you understand how the Python pickle/unpicke works,
-it would be great not to have to rely on a python3 binary.
 
 ## Issues
 

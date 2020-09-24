@@ -1,89 +1,58 @@
 fs  = require 'fs'
 net = require 'net'
 
-ini     = require 'ini'
-Pickle  = require './pickle'
+unpickle  = require 'unpickle';
 Property = require './Property'
-SQLite   = require 'better-sqlite3'
 
 END = "<F2B_END_COMMAND>"
 
 
 class Fail2Ban extends Property
 
-  constructor: (config = '/etc/fail2ban/fail2ban.conf') ->
+  constructor: (socketFile = '/var/run/fail2ban.sock') ->
     super()
-    stats = fs.statSync config
+    stats = fs.statSync socketFile
     if stats.isSocket()
-      @socket = config
+      @socket = socketFile
     else
-      conf = ini.parse fs.readFileSync config, 'utf-8'
-      @socket = conf.Definition.socket
-    @pickle = new Pickle
+      throw (socketFile+" is not valid socket")
 
   message: (msg...) ->
     new Promise (resolve, reject) =>
-      @pickle.dump msg
-      .then (encoded) =>
-        conn = net.connect @socket, =>
-          conn.write encoded
-          conn.write END
-        .on 'error', (err) =>
-          reject err
-        .on 'data', (data) =>
-          response = Buffer.from data
-          if response.toString('binary').endsWith END
-            response = response.slice 0, response.length - END.length
-          conn.end()
-          @pickle.load response
-          .then (result) =>
-            resolve result
-          .catch (err) =>
-            reject err
-      .catch (err) =>
+      encoded = unpickle.dump msg
+      conn = net.connect @socket, =>
+        conn.write encoded
+        conn.write END
+      .on 'error', (err) =>
         reject err
+      .on 'data', (data) =>
+        response = Buffer.from data
+        if response.toString('binary').endsWith END
+          response = response.slice 0, response.length - END.length
+        conn.end()
+        result = unpickle.parse response
+        resolve result[1]
 
   @property 'status',
     get: ->
       response = await @message 'status'
       status =
-        jails: response[1][0][1]
-        list: response[1][1][1].split /,\s*/
+        jails: response[0][1]
+        list: response[1][1].split /,\s*/
 
   ping: ->
-    @message 'ping'
-    .then (response) =>
-      response[1]
+    return @message 'ping'
+
+  reload: (jail) ->
+    if jail
+      return @message 'reload', jail
+    return @message 'reload'
 
   @property 'dbfile',
     get: ->
-      response = await @message 'get', 'dbfile'
-      response[1]
+      await @message 'get', 'dbfile'
+
     set: (file) ->
-      @message 'set', 'dbfile', file
-
-  @property 'bans',
-    get: ->
-      file = await @dbfile
-      db = new SQLite file,
-        fileMustExist: true
-        readonly: true
-      jail = @jail ? '%'
-      statement = db.prepare '''
-        SELECT jail, ip, timeofban, data
-          FROM bans
-        WHERE jail LIKE ?
-        ORDER BY timeofban ASC
-      '''
-      bans = statement.all jail
-      for ban in bans
-        data = JSON.parse ban.data.toString()
-        ban.time = new Date ban.timeofban * 1000
-        ban.matches = data.matches
-        ban.failures = data.failures
-        delete ban.data
-        delete ban.timeofban
-      bans
-
+      await @message 'set', 'dbfile', file
 
 module.exports = Fail2Ban

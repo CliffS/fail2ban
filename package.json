@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CliffS/fail2ban.git"
+    "url": "git+https://github.com/drudrum/fail2ban.git"
   },
   "keywords": [
     "fail2ban-client",
@@ -23,11 +23,10 @@
     "url": "https://github.com/CliffS/fail2ban/issues"
   },
   "homepage": "https://github.com/CliffS/fail2ban#readme",
+  "dependencies": {
+    "unpickle": "git+https://github.com/drudrum/node-unpickle.git"
+  },
   "devDependencies": {
     "coffeescript": "^2.3.2"
-  },
-  "dependencies": {
-    "better-sqlite3": "^5.0.1",
-    "ini": "^1.3.5"
   }
 }
